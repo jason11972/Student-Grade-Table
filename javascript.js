@@ -112,7 +112,7 @@ function addStudentToDom (student) {
     var add_course = $('<td>').text(student.course);
     var add_grade = $('<td>').text(student.grade);
     //the last column "Operations" is blank until you click the add button.  when that's clicked the new class is added to the html that contains the delete button//
-    var add_operations = $('<button>').addClass('btn btn-danger btn-sm').html('delete');
+    var add_operations = $('<button>').addClass('btn btn-danger btn-sm').html('delete').on('click', deleteClicked);
     //the row is then added and the info from all the variables(name, course, grade) are all added to the table along with the add_operations variable that creates the delete button//
     add_row.append(add_name, add_course, add_grade, add_operations);
     $('.student-list tbody').append(add_row);
@@ -124,6 +124,18 @@ function addStudentToDom (student) {
  */
 function reset() {
     student_array = [];
+}
+
+function deleteClicked () {
+    //we want to delete an entire row when the button is clicked.  "this" recognizes what you clicked on, in this case it's the delete button.  it then adds everything thats a parent of the button to var delete_row//
+    var delete_row = $(this).parent();
+    //it goes into the array and splices out the row you clicked on//
+    student_array.splice(delete_row.index(),1);
+    //it then removes the row, it doesnt actually delete it//
+    delete_row.remove();
+    //then you need the updateData function to run again so that it recalculates the student data, grade average, etc//
+    updateData();
+
 }
 
 /**
