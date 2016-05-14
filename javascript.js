@@ -40,6 +40,7 @@ function cancelClicked() {
  * @return undefined
  */
 function addStudent(name, course, grade) {
+    //creates a var called student and stores the info from the input fields in the var and pushes into the array//
     var student = {
         name: name,
         course: course,
@@ -56,6 +57,7 @@ function addStudent(name, course, grade) {
         //this is what i'm sending the DB.  sending the api key and the data i want to add to the DB//
         data: {
             api_key: 'BuFrdBm3xf',
+            //sending the student info along with the api key//
             name: student.name, course: student.course, grade: student.grade},
             success: function (student) {
                 if (result.success === true) {
@@ -63,10 +65,8 @@ function addStudent(name, course, grade) {
                     student_array.push(student);
                 }
             }
-
     })
 }
-
     /**
      * clearAddStudentForm - clears out the form values based on inputIds variable
      */
@@ -74,13 +74,13 @@ function addStudent(name, course, grade) {
         $('#studentName').val('');
         $('#studentCourse').val('');
         $('#studentGrade').val('');
-        // i'm guessing that to clear the form, i need to clear the inputIds variable that's holding the info, resets value back to empty string **/
+        // i'm guessing that to clear the form, i need to clear the domains, resets value back to empty**/
     }
-
     /**
      * calculateAverage - loop through the global student array and calculate average grade and return that value
      * @returns {number}
      */
+    //calculates the average grade by going through the array of students, parseInt the grade they have, then take that total of all grades and divide by the length of array...aka number of students//
     function calculateAverage() {
         var total = 0;
         for (var i = 0; i < student_array.length; i++) {
@@ -88,16 +88,15 @@ function addStudent(name, course, grade) {
         }
         return Math.round(total / student_array.length);
     }
-
     /**
      * updateData - centralized function to update the average and call student list update
      */
     function updateData() {
+        //if a student is added or subtracted the dom updates to show the new grade average and updates the student list//
         var avg = calculateAverage();
         $('.avgGrade').html(avg);
         updateStudentList();
     }
-
     /**
      * updateStudentList - loops through global student array and appends each objects data into the student-list-container > list-body
      */
@@ -106,7 +105,6 @@ function addStudent(name, course, grade) {
             student_array[i];
         }
     }
-
     /**
      * addStudentToDom - take in a student object, create html elements from the values and then append the elements
      * into the .student_list tbody
@@ -121,30 +119,28 @@ function addStudent(name, course, grade) {
         var add_name = $('<td>').text(student.name);
         var add_course = $('<td>').text(student.course);
         var add_grade = $('<td>').text(student.grade);
-
         //the last column "Operations" is blank until you click the add button.  when that's clicked the new class is added to the html that contains the delete button//
         var add_operations = $('<button>').addClass('btn btn-danger btn-sm').html('delete').on('click', deleteClicked);
         //the row is then added and the info from all the variables(name, course, grade) are all added to the table along with the add_operations variable that creates the delete button//
         add_row.append(add_name, add_course, add_grade, add_operations);
         $('.student-list tbody').append(add_row);
     }
-
     /**
      * reset - resets the application to initial state. Global variables reset, DOM get reset to initial load state
      */
-
-
     function deleteClicked() {
         console.log("$(this).attr('id'): ", $(this).parent().attr('id'));
+        //the buttonRow var is to show what you clicked delete on,
         var buttonRow = $(this).parent().attr('id');
-        //we want to delete an entire row when the button is clicked.  "this" recognizes what you clicked on, in this case it's the delete button.  it then adds everything thats a parent of the button to buttonRow//
+        //this next var is for deleting from the local dom only, not the ajax delete request.  we want to delete an entire row when the button is clicked.  "this" recognizes what you clicked on, in this case it's the delete button.  it then adds everything thats a parent of the button to var delete_row//
         var delete_row = $(this).parent();
         //it goes into the array and splices out the row you clicked on//
         student_array.splice(delete_row.index(), 1);
-        //it then removes the row, it doesnt actually delete it//
+        //it then removes the row from the dom only//
         delete_row.remove();
         //then you need the updateData function to run again so that it recalculates the student data, grade average, etc//
         updateData();
+        //THIS AJAX DELETE REQUEST DOES NOT WORK.  THE REQUEST COMES BACK SUCCESSFUL, BUT THE CONSOLE SAYS ""Unable to delete, you are not authorized to delete student"//
         $.ajax({
             //use same ajax call structure as below when requesting info from database, but change end of url to 'delete'//
             method: 'post',
@@ -157,42 +153,28 @@ function addStudent(name, course, grade) {
                 },
                 success: function (result) {
                     console.log('delete ajax result: ', result);
-                    // if (result.success) {
-                    //     var delete_row = $(this).parent();
-                    //     student_array.splice(delete_row.index(), 1);
-                    //     delete_row.remove();
-                    //     alert("Your data has been deleted");
-                    // } else {
-                    //     console.log('failed ajax request');
-                    // }
                 }
-
         })
-
     }
-
 //when get data button is clicked//
     function getDataClicked() {
-        //get DB to load when document loads//
+        //ajax call to get DB from server//
         $.ajax({
             dataType: 'json',
             url: 'http://s-apis.learningfuze.com/sgt/get',
             method: 'POST',
             data: {api_key: 'BuFrdBm3xf'},
-            //if it's a success it takes the result and ....
             success: function (result) {
                 console.log(result);
-                //check if success is true
+                //check if success is true//
                 if (result.success === true) {
-                    // if yes, iterate through result data
+                    // if yes, iterate through result data//
                     for (var i = 0; i < result.data.length; i++) {
                         var student = {};
                         student.name = result.data[i].name;
                         student.course = result.data[i].course;
                         student.grade = result.data[i].grade;
                         student.idnumber = result.data[i].id;
-                        var studentIDs = student.idnumber;
-                        console.log("The student ID #'s are:  " + studentIDs);
                         addStudentToDom(student);
                         updateData(student);
                         student_array.push(student);
@@ -205,15 +187,12 @@ function addStudent(name, course, grade) {
                 }
             }
         });
-
-
         /**
          * Listen for the document to load and reset the data to the initial state
          */
     }
-
     $(document).ready(function () {
+        //when document loads it calls the getDataClicked function so that upon loading the database of students gets loaded right away//
         getDataClicked();
-
     });
 
