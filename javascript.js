@@ -67,11 +67,6 @@ function addStudent(name, course, grade) {
     })
 }
 
-
-
-
-
-
     /**
      * clearAddStudentForm - clears out the form values based on inputIds variable
      */
@@ -142,6 +137,14 @@ function addStudent(name, course, grade) {
     function deleteClicked() {
         console.log("$(this).attr('id'): ", $(this).parent().attr('id'));
         var buttonRow = $(this).parent().attr('id');
+        //we want to delete an entire row when the button is clicked.  "this" recognizes what you clicked on, in this case it's the delete button.  it then adds everything thats a parent of the button to buttonRow//
+        var delete_row = $(this).parent();
+        //it goes into the array and splices out the row you clicked on//
+        student_array.splice(delete_row.index(), 1);
+        //it then removes the row, it doesnt actually delete it//
+        delete_row.remove();
+        //then you need the updateData function to run again so that it recalculates the student data, grade average, etc//
+        updateData();
         $.ajax({
             //use same ajax call structure as below when requesting info from database, but change end of url to 'delete'//
             method: 'post',
@@ -154,8 +157,18 @@ function addStudent(name, course, grade) {
                 },
                 success: function (result) {
                     console.log('delete ajax result: ', result);
+                    // if (result.success) {
+                    //     var delete_row = $(this).parent();
+                    //     student_array.splice(delete_row.index(), 1);
+                    //     delete_row.remove();
+                    //     alert("Your data has been deleted");
+                    // } else {
+                    //     console.log('failed ajax request');
+                    // }
                 }
+
         })
+
     }
 
 //when get data button is clicked//
