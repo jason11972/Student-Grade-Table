@@ -5,6 +5,11 @@
  * Define all global variables here
  */
 
+var spinner = $('<img>', {
+    src: 'http://www.gifstache.com/images/ajax_loader.gif',
+    style: 'width: 20px',
+    id: 'spinner'
+});
 /**
  * student_array - global array to hold student objects
  * @type {Array}
@@ -60,7 +65,7 @@ function addStudent(name, course, grade) {
             //sending the student info along with the api key//
             name: student.name, course: student.course, grade: student.grade},
             success: function (student) {
-                if (result.success === true) {
+                if (result.success) {
                     alert("Your data has been sent");
                     student_array.push(student);
                 }
@@ -168,6 +173,7 @@ function addStudent(name, course, grade) {
                 console.log(result);
                 //check if success is true//
                 if (result.success === true) {
+                    $('#spinner').remove();
                     // if yes, iterate through result data//
                     for (var i = 0; i < result.data.length; i++) {
                         var student = {};
@@ -187,6 +193,8 @@ function addStudent(name, course, grade) {
                 }
             }
         });
+
+
         /**
          * Listen for the document to load and reset the data to the initial state
          */
@@ -194,5 +202,8 @@ function addStudent(name, course, grade) {
     $(document).ready(function () {
         //when document loads it calls the getDataClicked function so that upon loading the database of students gets loaded right away//
         getDataClicked();
+        $('button#getdatabutton').click(function() {
+            $('button#getdatabutton').append(spinner);
+        });
     });
 
