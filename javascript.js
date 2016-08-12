@@ -48,9 +48,9 @@ function cancelClicked() {
  */
 function addStudent(name, course, grade) {
     var student = {
-        name:name,
-        course:course,
-        grade:grade
+        name: name,
+        course: course,
+        grade: grade
     };
     student_array.push(student);
     addStudentToDom(student);
@@ -58,7 +58,7 @@ function addStudent(name, course, grade) {
 /**
  * clearAddStudentForm - clears out the form values based on inputIds variable
  */
-function clearAddStudentForm () {
+function clearAddStudentForm() {
     $('#studentName').val('');
     $('#studentCourse').val('');
     $('#studentGrade').val('');
@@ -72,12 +72,13 @@ function clearAddStudentForm () {
  * calculateAverage - loop through the global student array and calculate average grade and return that value
  * @returns {number}
  */
-function calculateAverage () {
+function calculateAverage() {
+    console.log("ran calc avg");
     var total = 0;
-    for(var i = 0; i < student_array.length; i++) {
-        total+=parseInt(student_array[i].grade);
+    for (var i = 0; i < student_array.length; i++) {
+        total += parseInt(student_array[i].grade);
     }
-    return Math.round(total/student_array.length);
+    return Math.round(total / student_array.length);
 
 }
 
@@ -85,7 +86,7 @@ function calculateAverage () {
 /**
  * updateData - centralized function to update the average and call student list update
  */
-function updateData () {
+function updateData() {
     var avg = calculateAverage();
     $('.avgGrade').html(avg);
     updateStudentList();
@@ -93,7 +94,7 @@ function updateData () {
 /**
  * updateStudentList - loops through global student array and appends each objects data into the student-list-container > list-body
  */
-function updateStudentList () {
+function updateStudentList() {
     for (var i = 0; i < student_array.length; i++) {
         student_array[i];
     }
@@ -105,7 +106,7 @@ function updateStudentList () {
  * @param studentObj
  */
 //this really screwed me up.  i thought per the instructions above the object being taken into the function needed to be named studentObj....so because of that it wasnt reading the info in the variables below, wasnt displaying the variables on the table, wasnt grabbing the grades for the calculateAverage function.//
-function addStudentToDom (student) {
+function addStudentToDom(student) {
     //all the vars below take in the text from the addStudent function and puts that info into a table.//
     var add_row = $('<tr>');
     var add_name = $('<td>').text(student.name);
@@ -126,23 +127,52 @@ function reset() {
     student_array = [];
 }
 
-function deleteClicked () {
+function deleteClicked() {
     //we want to delete an entire row when the button is clicked.  "this" recognizes what you clicked on, in this case it's the delete button.  it then adds everything thats a parent of the button to var delete_row//
     var delete_row = $(this).parent();
     //it goes into the array and splices out the row you clicked on//
-    student_array.splice(delete_row.index(),1);
+    student_array.splice(delete_row.index(), 1);
     //it then removes the row, it doesnt actually delete it//
     delete_row.remove();
     //then you need the updateData function to run again so that it recalculates the student data, grade average, etc//
     updateData();
 
 }
+//when get data button is clicked//
 
+
+function getDataClicked() {
+    $.ajax({
+        dataType: 'json',
+        url: 'http://s-apis.learningfuze.com/sgt/get',
+        method: 'POST',
+        data: {api_key: 'BuFrdBm3xf'},
+        //if it's a success it takes the result and ....
+        success: function (result) {
+            console.log(result);
+            //check if success is true
+            //if yes, iterate through result data
+            for (var i = 0; i < result.data.length; i++) {
+                var student = {};
+                student.name = result.data[i].name;
+                student.course = result.data[i].course;
+                student.grade = result.data[i].grade;
+                addStudentToDom(student);
+                updateData(student);
+                student_array.push(student);
+
+            }
+            console.log("Student Array is ", student_array);
+            calculateAverage();
+        }
+    });
+}
 /**
  * Listen for the document to load and reset the data to the initial state
  */
-//i had all this wrapped in the document ready function, but it wasnt working.  when i put that function down here with nothing inside it, then it all worked fine.//
+
 $(document).ready(function () {
     reset();
+
 
 });
